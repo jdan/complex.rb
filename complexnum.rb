@@ -11,10 +11,15 @@ class ComplexNum
   end
   alias :conj :conjugate
 
+  def magnitude
+    Math.sqrt(@real**2 + @imag**2)
+  end
+  alias :abs :magnitude
+
   # When we coerce types (i.e. 2 * ComplexNum[]), we simply need to switch
   # the operands and use the normal overloaded methods
   def coerce(other)
-    return self, other
+    return CoercedComplexNum.new(@real, @imag), other
   end
 
   def +(other)
@@ -38,6 +43,22 @@ class ComplexNum
     imag = @real * other.imag + @imag * other.real
 
     ComplexNum.new real, imag
+  end
+
+  def **(n)
+    if n < 0
+      1 / (self ** -n)
+    elsif n == 0
+      1
+    else
+      # Divide and conquer
+      halfpow = (self ** (n/2))
+
+      slice = halfpow * halfpow
+      slice *= self if n % 2 == 1
+
+      slice
+    end
   end
 
   def /(other)
@@ -67,4 +88,20 @@ class ComplexNum
   end
   alias :inspect :to_s
 
+end
+
+# Subclass to help with type coercion with non-commutative operations.
+#
+# This class simply overwrites the normal `-` and `/` methods to work in
+# reverse.
+class CoercedComplexNum < ComplexNum
+  # other - self
+  def -(other)
+    ComplexNum.new(other) - self
+  end
+
+  # other / self
+  def /(other)
+    ComplexNum.new(other) / self
+  end
 end
