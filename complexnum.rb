@@ -46,7 +46,24 @@ class ComplexNum
   end
 
   def to_s
-    "#{@real} + #{@imag}i"
+    if @real == 0
+      # No need to show "1i", just "i"
+      if @imag == 1
+        "i"
+      elsif @imag == -1
+        "-i"
+      else
+        "#{@imag}i"
+      end
+    elsif @imag == 0
+      "#{@real}"
+    elsif @imag < 0
+      # No need to show "1i", just "i"
+      "#{@real} - #{@imag == -1 ? "" : -@imag}i"
+    else
+      # No need to show "1i", just "i"
+      "#{@real} + #{@imag == 1 ? "" : @imag}i"
+    end
   end
   alias :inspect :to_s
 
